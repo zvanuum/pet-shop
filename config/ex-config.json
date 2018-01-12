@@ -1,0 +1,8 @@
+{
+    "ACCESS_TOKEN": "aaaaaa",
+    "ACCESS_TOKEN_SECRET": "bbbbbb",
+    "CONSUMER_KEY": "cccccc",
+    "CONSUEMR_SECRET": "dddddd",
+    "USERNAME": "thefruitbot",
+    "USER_TO_TRACK": "twitterapi"
+}

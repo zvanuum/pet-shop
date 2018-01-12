@@ -4,5 +4,6 @@
     "CONSUMER_KEY": "cccccc",
     "CONSUEMR_SECRET": "dddddd",
     "USERNAME": "thefruitbot",
-    "USER_TO_TRACK": "twitterapi"
+    "USER_TO_TRACK": "twitterapi",
+    "FREQUENCY": 30
 }

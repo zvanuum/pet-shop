@@ -2,7 +2,6 @@ package main
 
 import (
 	"time"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,6 +12,9 @@ import (
 )
 
 func main() {
+	var spellChecker SpellChecker
+	spellChecker.NewSpellChecker()
+
 	viper.SetConfigFile("./config/config.json")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Couldn't read configuration file, %s", err)
@@ -39,13 +41,15 @@ func main() {
 
 				lastTweetId = tweets[0].Id
 				for _, tweet := range tweets {
-					fmt.Printf("\n%v\n", tweet)
-				}
+					log.Printf("%v\n", tweet)
+					misspelledCount := spellChecker.CountMisspelledWords(tweet.Text)
+					log.Printf("Found %d misspelled words in tweet \"%s\"\n", misspelledCount, tweet.Text)
 
-				// postTweet(httpClient)
+					// postTweet(httpClient)
+				}
 			case <-sigs:
 				ticker.Stop();
-				fmt.Println("Exiting")
+				log.Println("Exiting")
 				return;
 		}
 	}

@@ -1,29 +1,27 @@
 package main
 
 import (
-	"time"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/dghubble/oauth1"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	var spellChecker SpellChecker
-	spellChecker.NewSpellChecker()
-
 	viper.SetConfigFile("./config/config.json")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Couldn't read configuration file, %s", err)
 	}
 
 	userToTrack := viper.GetString("USER_TO_TRACK")
-	var lastTweetId int64
+	var lastTweetID int64
 
-    config := oauth1.NewConfig(viper.GetString("CONSUMER_KEY"), viper.GetString("CONSUMER_SECRET"))
+	config := oauth1.NewConfig(viper.GetString("CONSUMER_KEY"), viper.GetString("CONSUMER_SECRET"))
 	token := oauth1.NewToken(viper.GetString("ACCESS_TOKEN"), viper.GetString("ACCESS_TOKEN_SECRET"))
 	httpClient := config.Client(oauth1.NoContext, token)
 
@@ -33,24 +31,23 @@ func main() {
 
 	for {
 		select {
-			case <-ticker.C:
-				tweets := getUserTweets(httpClient, userToTrack, lastTweetId)
-				if len(tweets) == 0 {
-					break
-				}
+		case <-ticker.C:
+			tweets := getUserTweets(httpClient, userToTrack, lastTweetID)
+			if len(tweets) == 0 {
+				break
+			}
 
-				lastTweetId = tweets[0].Id
-				for _, tweet := range tweets {
-					log.Printf("%v\n", tweet)
-					misspelledCount := spellChecker.CountMisspelledWords(tweet.Text)
-					log.Printf("Found %d misspelled words in tweet \"%s\"\n", misspelledCount, tweet.Text)
+			lastTweetID = tweets[0].ID
 
-					// postTweet(httpClient)
-				}
-			case <-sigs:
-				ticker.Stop();
-				log.Println("Exiting")
-				return;
+			for _, tweet := range tweets {
+				log.Printf("%v\n", tweet)
+				message := fmt.Sprintf("@%s %d more characters contributing to making our nation a joke. Way to go.", userToTrack, len(tweet.Text))
+				postTweet(httpClient, message, tweet.ID)
+			}
+		case <-sigs:
+			ticker.Stop()
+			log.Println("Exiting")
+			return
 		}
 	}
 }

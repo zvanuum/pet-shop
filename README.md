@@ -1,3 +1,3 @@
 # pet-shop
 
-A Twitter bot for messing with my friends :^)
+A Twitter bot for messing around :^)

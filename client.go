@@ -1,27 +1,27 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
-    "encoding/json"
-    "fmt"
-    "io/ioutil"
-    "net/http"
-    "net/url"
+	"net/http"
+	"net/url"
 )
 
-func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetId int64) []TimelineTweet {
-	log.Printf("Retrieving tweets for user %s starting from ID %d\n", userToTrack, lastTweetId)
+func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetID int64) []TimelineTweet {
+	log.Printf("Retrieving tweets for user %s starting from ID %d\n", userToTrack, lastTweetID)
 
-	timelineUrl := fmt.Sprintf("%s%s?tweet_mode=extended&screen_name=%s&include_rts=false", TWITTER, USER_TIMELINE, userToTrack)
-	if lastTweetId > 0 {
-		timelineUrl = fmt.Sprintf("%s&since_id=%d", timelineUrl, lastTweetId)
+	timelineURL := fmt.Sprintf("%s%s?tweet_mode=extended&screen_name=%s&include_rts=false", Twitter, UserTimeline, userToTrack)
+	if lastTweetID > 0 {
+		timelineURL = fmt.Sprintf("%s&since_id=%d", timelineURL, lastTweetID)
 	} else {
-		timelineUrl += "&count=1"
+		timelineURL += "&count=1"
 	}
 
-	res, err := httpClient.Get(timelineUrl)
-    if err != nil {
-        log.Printf("Failed to retrieve user timeline: %s", err)
+	res, err := httpClient.Get(timelineURL)
+	if err != nil {
+		log.Printf("Failed to retrieve user timeline: %s", err)
 	}
 	defer res.Body.Close()
 
@@ -32,14 +32,15 @@ func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetId int6
 		log.Printf("Failed to unmarshal user timeline tweets: %s\n", err)
 		return nil
 	}
-	
+
 	return data
 }
 
-func postTweet(httpClient *http.Client, userToTrack string, message string) {
-	log.Printf("Sending tweet to user %s with message \"%s\"\n", userToTrack, message)
-	statusUpdateUrl := fmt.Sprintf("%s%s", TWITTER, STATUS_UPDATE)
-	res, err := httpClient.PostForm(statusUpdateUrl, url.Values{"status": {"@faesaurus testing testing 123"}, "in_reply_to_status_id": {"951931421181935616"}})
+func postTweet(httpClient *http.Client, message string, inResponseTo int64) {
+	log.Printf("Sending tweet with message \"%s\" in response to status %d\n", message, inResponseTo)
+
+	statusUpdateURL := fmt.Sprintf("%s%s", Twitter, StatusUpdate)
+	res, err := httpClient.PostForm(statusUpdateURL, url.Values{"status": {message}, "in_reply_to_status_id": {string(inResponseTo)}})
 	if err != nil {
 		log.Printf("Failed to send tweet: %s", err)
 		return
@@ -55,13 +56,16 @@ func postTweet(httpClient *http.Client, userToTrack string, message string) {
 }
 
 func unmarshalResponse(res *http.Response, target interface{}) error {
-	if body, err := ioutil.ReadAll(res.Body); err == nil {
+	var body []byte
+	var err error
+
+	if body, err = ioutil.ReadAll(res.Body); err == nil {
 		if err2 := json.Unmarshal(body, &target); err2 != nil {
 			return fmt.Errorf("Failed unmarshalling response: %s", err2)
 		}
-	
+
 		return nil
-	} else {
-		return fmt.Errorf("Failed to read response body: %s", err)
-	}	
+	}
+
+	return fmt.Errorf("Failed to read response body: %s", err)
 }

@@ -12,7 +12,7 @@ const (
 // TimelineTweet Struct to represent a tweet retrieved from a user's timeline
 type TimelineTweet struct {
 	CreatedAt string `json:"createdAt"`
-	ID        int64  `json:"id"`
+	ID        string `json:"id_str"`
 	Text      string `json:"full_text"`
 }
 

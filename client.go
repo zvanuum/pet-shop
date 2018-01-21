@@ -36,11 +36,11 @@ func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetID stri
 	return data
 }
 
-func postTweet(httpClient *http.Client, message string, inResponseTo string) {
-	log.Printf("Sending tweet with message \"%s\" in response to status %s\n", message, inResponseTo)
+func postTweet(httpClient *http.Client, message string, inResponseToID string) {
+	log.Printf("Sending tweet with message \"%s\" in response to status %s\n", message, inResponseToID)
 
 	statusUpdateURL := fmt.Sprintf("%s%s", Twitter, StatusUpdate)
-	res, err := httpClient.PostForm(statusUpdateURL, url.Values{"status": {message}, "in_reply_to_status_id": {inResponseTo}})
+	res, err := httpClient.PostForm(statusUpdateURL, url.Values{"status": {message}, "in_reply_to_status_id": {inResponseToID}})
 	if err != nil {
 		log.Printf("Failed to send tweet: %s", err)
 		return

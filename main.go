@@ -19,7 +19,7 @@ func main() {
 	}
 
 	userToTrack := viper.GetString("USER_TO_TRACK")
-	var lastTweetID int64
+	lastTweetID := ""
 
 	config := oauth1.NewConfig(viper.GetString("CONSUMER_KEY"), viper.GetString("CONSUMER_SECRET"))
 	token := oauth1.NewToken(viper.GetString("ACCESS_TOKEN"), viper.GetString("ACCESS_TOKEN_SECRET"))

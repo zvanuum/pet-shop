@@ -9,12 +9,12 @@ import (
 	"net/url"
 )
 
-func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetID int64) []TimelineTweet {
-	log.Printf("Retrieving tweets for user %s starting from ID %d\n", userToTrack, lastTweetID)
+func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetID string) []TimelineTweet {
+	log.Printf("Retrieving tweets for user %s starting from ID %s\n", userToTrack, lastTweetID)
 
 	timelineURL := fmt.Sprintf("%s%s?tweet_mode=extended&screen_name=%s&include_rts=false", Twitter, UserTimeline, userToTrack)
-	if lastTweetID > 0 {
-		timelineURL = fmt.Sprintf("%s&since_id=%d", timelineURL, lastTweetID)
+	if lastTweetID != "" {
+		timelineURL = fmt.Sprintf("%s&since_id=%s", timelineURL, lastTweetID)
 	} else {
 		timelineURL += "&count=1"
 	}
@@ -36,11 +36,11 @@ func getUserTweets(httpClient *http.Client, userToTrack string, lastTweetID int6
 	return data
 }
 
-func postTweet(httpClient *http.Client, message string, inResponseTo int64) {
-	log.Printf("Sending tweet with message \"%s\" in response to status %d\n", message, inResponseTo)
+func postTweet(httpClient *http.Client, message string, inResponseTo string) {
+	log.Printf("Sending tweet with message \"%s\" in response to status %s\n", message, inResponseTo)
 
 	statusUpdateURL := fmt.Sprintf("%s%s", Twitter, StatusUpdate)
-	res, err := httpClient.PostForm(statusUpdateURL, url.Values{"status": {message}, "in_reply_to_status_id": {string(inResponseTo)}})
+	res, err := httpClient.PostForm(statusUpdateURL, url.Values{"status": {message}, "in_reply_to_status_id": {inResponseTo}})
 	if err != nil {
 		log.Printf("Failed to send tweet: %s", err)
 		return

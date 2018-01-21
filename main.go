@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html"
 	"log"
 	"os"
 	"os/signal"
@@ -41,7 +42,8 @@ func main() {
 
 			for _, tweet := range tweets {
 				log.Printf("%v\n", tweet)
-				message := fmt.Sprintf("@%s %d more characters contributing to making our nation a joke. Way to go.", userToTrack, len(tweet.Text))
+				tweetLength := len(html.UnescapeString(tweet.Text))
+				message := fmt.Sprintf("@%s %d more characters contributing to making our nation a joke. Way to go.", userToTrack, tweetLength)
 				postTweet(httpClient, message, tweet.ID)
 			}
 		case <-sigs:
